@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ra’Shawn Howard" />
+
+
+<title>PredSales</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">ModelBehavior</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="PredSales.html">PredSales</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">PredSales</h1>
+<h4 class="author">Ra’Shawn Howard</h4>
+
+</div>
+
+
+<div id="libraries-i-use" class="section level1">
+<h1>Libraries I Use</h1>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.0     ✓ purrr   0.3.4
+## ✓ tibble  3.0.3     ✓ dplyr   1.0.1
+## ✓ tidyr   1.1.1     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.4.0</code></pre>
+<pre><code>## ── Conflicts ───────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(forecast)</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;quantmod&#39;:
+##   method            from
+##   as.zoo.data.frame zoo</code></pre>
+<pre class="r"><code>library(feasts)</code></pre>
+<pre><code>## Loading required package: fabletools</code></pre>
+<pre><code>## 
+## Attaching package: &#39;fabletools&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:forecast&#39;:
+## 
+##     accuracy, forecast</code></pre>
+<pre class="r"><code>library(fable)
+library(tsibble)
+library(lubridate)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;lubridate&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:tsibble&#39;:
+## 
+##     interval, new_interval</code></pre>
+<pre><code>## The following object is masked from &#39;package:base&#39;:
+## 
+##     date</code></pre>
+<pre class="r"><code>library(tidymodels)</code></pre>
+<pre><code>## ── Attaching packages ───────────────────────── tidymodels 0.1.0 ──</code></pre>
+<pre><code>## ✓ broom     0.5.6      ✓ rsample   0.0.7 
+## ✓ dials     0.0.8      ✓ tune      0.1.1 
+## ✓ infer     0.5.2      ✓ workflows 0.2.1 
+## ✓ parsnip   0.1.4      ✓ yardstick 0.0.7 
+## ✓ recipes   0.1.10</code></pre>
+<pre><code>## ── Conflicts ──────────────────────────── tidymodels_conflicts() ──
+## x yardstick::accuracy() masks fabletools::accuracy(), forecast::accuracy()
+## x scales::discard()     masks purrr::discard()
+## x dplyr::filter()       masks stats::filter()
+## x recipes::fixed()      masks stringr::fixed()
+## x infer::generate()     masks fabletools::generate()
+## x dplyr::lag()          masks stats::lag()
+## x parsnip::null_model() masks fabletools::null_model()
+## x yardstick::spec()     masks readr::spec()
+## x recipes::step()       masks stats::step()</code></pre>
+</div>
+<div id="load-data" class="section level1">
+<h1>Load Data</h1>
+<pre class="r"><code>sales_data &lt;- read_csv(&quot;/Users/rashawnhoward/Downloads/sales_train.csv&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   date = col_character(),
+##   date_block_num = col_double(),
+##   shop_id = col_double(),
+##   item_id = col_double(),
+##   item_price = col_double(),
+##   item_cnt_day = col_double()
+## )</code></pre>
+<pre class="r"><code>glimpse(sales_data)</code></pre>
+<pre><code>## Rows: 2,935,849
+## Columns: 6
+## $ date           &lt;chr&gt; &quot;02.01.2013&quot;, &quot;03.01.2013&quot;, &quot;05.01.2013&quot;, &quot;06.01.2013&quot;…
+## $ date_block_num &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ shop_id        &lt;dbl&gt; 59, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25…
+## $ item_id        &lt;dbl&gt; 22154, 2552, 2552, 2554, 2555, 2564, 2565, 2572, 2572,…
+## $ item_price     &lt;dbl&gt; 999.00, 899.00, 899.00, 1709.05, 1099.00, 349.00, 549.…
+## $ item_cnt_day   &lt;dbl&gt; 1, 1, -1, 1, 1, 1, 1, 1, 1, 3, 2, 1, 1, 2, 1, 2, 1, 1,…</code></pre>
+</div>
+<div id="exploreclean-data" class="section level1">
+<h1>Explore/Clean Data</h1>
+<p>The data being from <a href="%22https://www.kaggle.com/c/competitive-data-science-predict-future-sales%22">kaggle</a> it fairly clean, we just need to get the data into the correct format to perform our analysis. The Competetion wanted to predict total sales for each shop, while we will be predicting total sales as a whole. From the glimpse function we can see that the date column is of type chr and needs to be converted to type Date, also item cnt day will need to summed for the different shops on the same date (e.g we will group_by date). The chunck of code below will do this.</p>
+<pre class="r"><code>sales_data %&gt;% 
+  mutate(date = dmy(date)) %&gt;% # Change date column to type date
+  group_by(date) %&gt;% 
+  summarise(item_cnt_day = sum(item_cnt_day)) %&gt;% 
+  as_tsibble(index = date) -&gt; sales_data # Make data a time series object (easier to work with)!</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre class="r"><code>                           # Assign changes to sales data</code></pre>
+<div id="visualize-data" class="section level2">
+<h2>visualize data</h2>
+<p>The data Doesn’t look stationary. We can see a slight trend downward in the recent year. Two higher than normal peeks at the beginning of 2014 and the begining of 2015, I’m not sure what caused these peeks, but this should be fixed with a tranformation. We can see a cyclic and seasonal pattern in the data as well and should be taken into account when modeling.</p>
+<pre class="r"><code>sales_data %&gt;% 
+  ggplot(aes(date,item_cnt_day)) +
+  geom_line() +
+  xlab(&quot;Days&quot;) +
+  ylab(&quot;Number of Products Sold&quot;) +
+  ggtitle(&quot;Doesn&#39;t look Stationary&quot;)</code></pre>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-4-1.png" width="672" /> Looking at the ACF plot below we can see that the data has high peeks at 7, 14, 21, and 28. Suggesting that the data is weekly seasonal.</p>
+<pre class="r"><code>sales_data %&gt;% 
+  ACF() %&gt;% 
+  autoplot()</code></pre>
+<pre><code>## Response variable not specified, automatically selected `var = item_cnt_day`</code></pre>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-5-1.png" width="672" /> We can see the <a href="%22https://feasts.tidyverts.org/reference/guerrero.html%22">BoxCox</a> fixed the Variance issue from the first plot, and we can see stationarity from second plot. We can also add another difference on to this, looking at the nsdiff and ndiff function we see that the data needs a seasonal difference and a regular difference.</p>
+<pre class="r"><code>lambda &lt;- sales_data %&gt;% # Find Best Lambda Value
+  features(item_cnt_day,features = guerrero) %&gt;% 
+  pull(lambda_guerrero)
+
+sales_data %&gt;% # Apply BoxCox Transformation             # assign to sales data
+  mutate(item_cnt_day = box_cox(item_cnt_day,lambda)) -&gt; sales_data
+
+sales_data %&gt;% # Plot what data looks like now
+  autoplot() +
+  xlab(&quot;Day&quot;) +
+  ylab(&quot;BoxCox Number of Products Sold&quot;) +
+  ggtitle(&quot;The Variance Issue Is Gone&quot;) # still see trend, need to diffference data</code></pre>
+<pre><code>## Plot variable not specified, automatically selected `.vars = item_cnt_day`</code></pre>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code># What kind of differences do we need?
+sales_data %&gt;% 
+  features(item_cnt_day,unitroot_ndiffs) # We have a trend component</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   ndiffs
+##    &lt;int&gt;
+## 1      1</code></pre>
+<pre class="r"><code>sales_data %&gt;% 
+  features(item_cnt_day,unitroot_nsdiffs) # We have a seasonal component</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   nsdiffs
+##     &lt;int&gt;
+## 1       1</code></pre>
+<pre class="r"><code>sales_data %&gt;% # Plot to see if data is stationary
+  mutate(item_cnt_day = difference(item_cnt_day,7)) %&gt;% 
+  autoplot() + 
+  geom_hline(yintercept = 0, col=&quot;red&quot;) +
+  xlab(&quot;Day&quot;) +
+  ylab(&quot;Differenced(7) BoxCox Number of Products Sold&quot;) +
+  ggtitle(&quot;Looks Stationary Now&quot;)</code></pre>
+<pre><code>## Plot variable not specified, automatically selected `.vars = item_cnt_day`</code></pre>
+<pre><code>## Warning: Removed 7 row(s) containing missing values (geom_path).</code></pre>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<pre class="r"><code>sales_data %&gt;% # Plot to see if data is stationary (extra difference plot)
+  mutate(item_cnt_day = difference(item_cnt_day,7) %&gt;% difference()) %&gt;% 
+  autoplot() + 
+  geom_hline(yintercept = 0, col=&quot;red&quot;) +
+  xlab(&quot;Day&quot;) +
+  ylab(&quot;Differenced(7) BoxCox Number of Products Sold&quot;) +
+  ggtitle(&quot;Looks Stationary Now&quot;)</code></pre>
+<pre><code>## Plot variable not specified, automatically selected `.vars = item_cnt_day`</code></pre>
+<pre><code>## Warning: Removed 8 row(s) containing missing values (geom_path).</code></pre>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-6-3.png" width="672" /></p>
+</div>
+</div>
+<div id="split-data" class="section level1">
+<h1>Split Data</h1>
+<p>Make a training and test set</p>
+<pre class="r"><code>split &lt;- initial_time_split(sales_data,prop = 0.8)
+test &lt;- testing(split)
+train &lt;- training(split)</code></pre>
+</div>
+<div id="modeling" class="section level1">
+<h1>Modeling</h1>
+<div id="picking-p-and-q-for-sarima-model" class="section level2">
+<h2>Picking p and q for SARIMA model</h2>
+<p>Looking at the ACF plot below, we see a big lag at 7 this suggest a seasonal MA component. There is also a lag at 28 This might suggest 2 seasonal MA components, but this lag is really small and we may not need this component(we can test different models). We can see some other regular MA components 2 maybe 4.</p>
+<pre class="r"><code>train %&gt;% 
+  mutate(item_cnt_day = difference(item_cnt_day,7) %&gt;% difference()) %&gt;% 
+  ACF() %&gt;% 
+  autoplot()</code></pre>
+<pre><code>## Response variable not specified, automatically selected `var = item_cnt_day`</code></pre>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-8-1.png" width="672" /> Looking at the PACF plot below, we can see big lags at 7, 14, 21, and 28 which could suggest 4 seasonal AR componets. Its hard to tell how many regular components could be 2 or more.</p>
+<pre class="r"><code>train %&gt;% 
+  mutate(item_cnt_day = difference(item_cnt_day,7) %&gt;% difference()) %&gt;% 
+  PACF() %&gt;% 
+  autoplot()</code></pre>
+<pre><code>## Response variable not specified, automatically selected `var = item_cnt_day`</code></pre>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-9-1.png" width="672" /> The EACF plot suggest an MA(2) ARMA(2,2) ARMA(3,1)</p>
+<pre class="r"><code>TSA::eacf(train$item_cnt_day)</code></pre>
+<pre><code>## Registered S3 methods overwritten by &#39;TSA&#39;:
+##   method       from    
+##   fitted.Arima forecast
+##   plot.Arima   forecast</code></pre>
+<pre><code>## AR/MA
+##   0 1 2 3 4 5 6 7 8 9 10 11 12 13
+## 0 x x o o x x x x x o o  o  x  x 
+## 1 x x x o o x x x x x o  o  x  x 
+## 2 x x o o o o x x x o o  o  o  x 
+## 3 x o x o o o x x o x o  o  o  x 
+## 4 x x o o o o x x x o o  o  o  x 
+## 5 x x x o o x x x x o o  o  x  x 
+## 6 x x x o x x x x x o x  x  x  x 
+## 7 x x x x x x x x o o o  o  o  o</code></pre>
+</div>
+<div id="different-models" class="section level2">
+<h2>Different models</h2>
+<p>Seems my model has a lower AICc score than the automated model</p>
+<pre class="r"><code>train %&gt;% # Automated model chosen by auto.arima function
+  model(ARIMA(item_cnt_day,stepwise=FALSE,approximation = FALSE)) %&gt;% 
+  report()</code></pre>
+<pre><code>## Series: item_cnt_day 
+## Model: ARIMA(4,0,0)(0,1,1)[7] 
+## 
+## Coefficients:
+##          ar1     ar2     ar3     ar4     sma1
+##       0.5921  0.0517  0.0358  0.0853  -0.9171
+## s.e.  0.0371  0.0418  0.0421  0.0363   0.0325
+## 
+## sigma^2 estimated as 2.648e-05:  log likelihood=3154.27
+## AIC=-6296.54   AICc=-6296.43   BIC=-6268.28</code></pre>
+<pre class="r"><code>train %&gt;% # My model
+  model(ARIMA(item_cnt_day~pdq(p=2:4,0:2,q=2:4,p_init=2,q_init=2)+PDQ(P=1:4,1,Q=0:2,P_init=1,Q_init=1))) %&gt;% 
+  report()</code></pre>
+<pre><code>## Series: item_cnt_day 
+## Model: ARIMA(2,0,2)(2,1,0)[7] 
+## 
+## Coefficients:
+##          ar1     ar2      ma1      ma2     sar1     sar2
+##       0.7758  0.0444  -0.2288  -0.1342  -0.6031  -0.2997
+## s.e.  0.4516  0.3485   0.4492   0.1211   0.0362   0.0352
+## 
+## sigma^2 estimated as 3.126e-05:  log likelihood=3091.41
+## AIC=-6168.82   AICc=-6168.68   BIC=-6135.86</code></pre>
+</div>
+<div id="fit" class="section level2">
+<h2>Fit</h2>
+<pre class="r"><code>fit &lt;- train %&gt;% 
+  model(arima_400_011 = ARIMA(item_cnt_day~pdq(4,0,0)+PDQ(0,1,1)),
+        arima_202_210 = ARIMA(item_cnt_day~pdq(2,0,2)+PDQ(2,1,0)),
+        arima_111_111 = ARIMA(item_cnt_day~pdq(1,1,1) + PDQ(1,1,1)),
+        lm1 = ARIMA(item_cnt_day~0+date+pdq(4,0,0)+PDQ(0,1,1)),
+        lm2 = ARIMA(item_cnt_day~0+date+pdq(2,0,2)+PDQ(2,1,0)))</code></pre>
+<pre class="r"><code>fit %&gt;% 
+  forecast(test) %&gt;% 
+  autoplot(test,level = NULL) + 
+  xlab(&quot;Day&quot;) +
+  ylab(&quot;Number of Products Sold&quot;) +
+  ggtitle(&quot;Model Fits on New Data&quot;)</code></pre>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-13-1.png" width="672" /> Looks like the arima_111_111 model did the best on the test set with RMSE = 0.008234140</p>
+<pre class="r"><code>fit %&gt;% 
+  forecast(test) %&gt;% 
+  fabletools::accuracy(test)</code></pre>
+<pre><code>## # A tibble: 5 x 9
+##   .model        .type        ME    RMSE     MAE     MPE  MAPE  MASE  ACF1
+##   &lt;chr&gt;         &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 arima_111_111 Test  -0.000353 0.00823 0.00580 -0.0172 0.263   NaN 0.465
+## 2 arima_202_210 Test  -0.00348  0.00951 0.00732 -0.159  0.333   NaN 0.450
+## 3 arima_400_011 Test  -0.00904  0.0125  0.0108  -0.412  0.491   NaN 0.479
+## 4 lm1           Test  -0.00880  0.0121  0.0105  -0.401  0.477   NaN 0.471
+## 5 lm2           Test  -0.00136  0.00900 0.00654 -0.0628 0.297   NaN 0.456</code></pre>
+<p>A closer look at the arima_111_111 model on the test data</p>
+<pre class="r"><code>train %&gt;% 
+  model(ARIMA(item_cnt_day~pdq(1,1,1)+PDQ(1,1,1))) %&gt;% 
+  forecast(test) %&gt;% 
+  autoplot(test) +
+  xlab(&quot;day&quot;) +
+  ylab(&quot;Number of Products Sold&quot;) +
+  ggtitle(&quot;Closer Look at ARIMA_111_111 Model&quot;)</code></pre>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -25,8 +25,6 @@ Data is not knowledge, knowledge is not wisdom
 
 Ever wonder if the problem you have can be solved using statistics? The field of statistics and data science has grown rapidly over recent years. With buzz words like Artificial intelligence and machine learning, one can't help but wonder what the field can offer them. Whether it be for personal benefit or business-driven, everyone wants a piece of the pie. This website covers some of my journey to achieving my goal of becoming a data scientist. 
 
-### [Crump Lab: Human Cognition and Performance](https://crumplab.github.io)
-
 <a href = "https://crumplab.github.io">
 ![](images/logo.png)
 </a>
