@@ -1,6 +1,6 @@
-name: "MyLabJournal"
+name: "RaShawn's Site"
 navbar:
-  title: "MyLabJournal"
+  title: "ModelBehavior"
   left:
     - text: "Home"
       href: index.html
