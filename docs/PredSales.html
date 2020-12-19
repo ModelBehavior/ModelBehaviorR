@@ -388,12 +388,14 @@ library(lubridate)</code></pre>
   xlab(&quot;Days&quot;) +
   ylab(&quot;Number of Products Sold&quot;) +
   ggtitle(&quot;Doesn&#39;t look Stationary&quot;)</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-4-1.png" width="672" /> Looking at the ACF plot below we can see that the data has high peeks at 7, 14, 21, and 28. Suggesting that the data is weekly seasonal.</p>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-5-1.png" width="672" /><br />
+Looking at the ACF plot below we can see that the data has high peeks at 7, 14, 21, and 28. Suggesting that the data is weekly seasonal.</p>
 <pre class="r"><code>sales_data %&gt;% 
   ACF() %&gt;% 
   autoplot()</code></pre>
 <pre><code>## Response variable not specified, automatically selected `var = item_cnt_day`</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-5-1.png" width="672" /> We can see the <a href="%22https://feasts.tidyverts.org/reference/guerrero.html%22">BoxCox</a> fixed the Variance issue from the first plot, and we can see stationarity from second plot. We can also add another difference on to this, looking at the nsdiff and ndiff function we see that the data needs a seasonal difference and a regular difference.</p>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-6-1.png" width="672" /><br />
+We can see the <a href="%22https://feasts.tidyverts.org/reference/guerrero.html%22">BoxCox</a> fixed the Variance issue from the first plot, and we can see stationarity from second plot. We can also add another difference on to this, looking at the nsdiff and ndiff function we see that the data needs a seasonal difference and a regular difference.</p>
 <pre class="r"><code>lambda &lt;- sales_data %&gt;% # Find Best Lambda Value
   features(item_cnt_day,features = guerrero) %&gt;% 
   pull(lambda_guerrero)
@@ -407,7 +409,7 @@ sales_data %&gt;% # Plot what data looks like now
   ylab(&quot;BoxCox Number of Products Sold&quot;) +
   ggtitle(&quot;The Variance Issue Is Gone&quot;) # still see trend, need to diffference data</code></pre>
 <pre><code>## Plot variable not specified, automatically selected `.vars = item_cnt_day`</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <pre class="r"><code># What kind of differences do we need?
 sales_data %&gt;% 
   features(item_cnt_day,unitroot_ndiffs) # We have a trend component</code></pre>
@@ -429,8 +431,7 @@ sales_data %&gt;%
   ylab(&quot;Differenced(7) BoxCox Number of Products Sold&quot;) +
   ggtitle(&quot;Looks Stationary Now&quot;)</code></pre>
 <pre><code>## Plot variable not specified, automatically selected `.vars = item_cnt_day`</code></pre>
-<pre><code>## Warning: Removed 7 row(s) containing missing values (geom_path).</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
 <pre class="r"><code>sales_data %&gt;% # Plot to see if data is stationary (extra difference plot)
   mutate(item_cnt_day = difference(item_cnt_day,7) %&gt;% difference()) %&gt;% 
   autoplot() + 
@@ -439,8 +440,7 @@ sales_data %&gt;%
   ylab(&quot;Differenced(7) BoxCox Number of Products Sold&quot;) +
   ggtitle(&quot;Looks Stationary Now&quot;)</code></pre>
 <pre><code>## Plot variable not specified, automatically selected `.vars = item_cnt_day`</code></pre>
-<pre><code>## Warning: Removed 8 row(s) containing missing values (geom_path).</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-6-3.png" width="672" /></p>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-7-3.png" width="672" /></p>
 </div>
 </div>
 <div id="split-data" class="section level1">
@@ -460,13 +460,15 @@ train &lt;- training(split)</code></pre>
   ACF() %&gt;% 
   autoplot()</code></pre>
 <pre><code>## Response variable not specified, automatically selected `var = item_cnt_day`</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-8-1.png" width="672" /> Looking at the PACF plot below, we can see big lags at 7, 14, 21, and 28 which could suggest 4 seasonal AR componets. Its hard to tell how many regular components could be 2 or more.</p>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-9-1.png" width="672" /><br />
+Looking at the PACF plot below, we can see big lags at 7, 14, 21, and 28 which could suggest 4 seasonal AR componets. Its hard to tell how many regular components could be 2 or more.</p>
 <pre class="r"><code>train %&gt;% 
   mutate(item_cnt_day = difference(item_cnt_day,7) %&gt;% difference()) %&gt;% 
   PACF() %&gt;% 
   autoplot()</code></pre>
 <pre><code>## Response variable not specified, automatically selected `var = item_cnt_day`</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-9-1.png" width="672" /> The EACF plot suggest an MA(2) ARMA(2,2) ARMA(3,1)</p>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-10-1.png" width="672" /><br />
+The EACF plot suggest an MA(2) ARMA(2,2) ARMA(3,1)</p>
 <pre class="r"><code>TSA::eacf(train$item_cnt_day)</code></pre>
 <pre><code>## Registered S3 methods overwritten by &#39;TSA&#39;:
 ##   method       from    
@@ -527,7 +529,8 @@ train &lt;- training(split)</code></pre>
   xlab(&quot;Day&quot;) +
   ylab(&quot;Number of Products Sold&quot;) +
   ggtitle(&quot;Model Fits on New Data&quot;)</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-13-1.png" width="672" /> Looks like the arima_111_111 model did the best on the test set with RMSE = 0.008234140</p>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>Looks like the arima_111_111 model did the best on the test set with RMSE = 0.008234140</p>
 <pre class="r"><code>fit %&gt;% 
   forecast(test) %&gt;% 
   fabletools::accuracy(test)</code></pre>
@@ -547,7 +550,11 @@ train &lt;- training(split)</code></pre>
   xlab(&quot;day&quot;) +
   ylab(&quot;Number of Products Sold&quot;) +
   ggtitle(&quot;Closer Look at ARIMA_111_111 Model&quot;)</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<pre class="r"><code>train %&gt;% 
+  model(ARIMA(item_cnt_day~pdq(1,1,1)+PDQ(1,1,1))) %&gt;% 
+  gg_tsresiduals()</code></pre>
+<p><img src="PredSales_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 </div>
 </div>
 
