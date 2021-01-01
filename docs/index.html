@@ -23,6 +23,15 @@
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
   pre:not([class]) {
@@ -67,6 +76,7 @@ h6 {
   text-align: left;
 }
 </style>
+
 
 
 
@@ -310,7 +320,9 @@ $(document).ready(function () {
 <h2 id="what-is-this-place">What is This Place?</h2>
 <p>Ever wonder if the problem you have can be solved using statistics? The field of statistics and data science has grown rapidly over recent years. With buzz words like Artificial intelligence and machine learning, one can’t help but wonder what the field can offer them. Whether it be for personal benefit or business-driven, everyone wants a piece of the pie. This website covers some of my journey to achieving my goal of becoming a data scientist.</p>
 <h2 id="site-navigation">Site Navigation</h2>
-<p>Clicking on the tabs at the top, you can go through some of the projects I have completed throughout my journey. These projects were done on my own and not assigned for credit. During or after a course, I try to apply what I have learned to a new data set. Data science and statistics is a field where you never stop learning. When coding in R, I am a big proponent of tidy data and tidy packages in general and base my workflow around them.</p>
+<p>Clicking on the tabs at the top, you can go through some of the projects I have completed throughout my journey. These projects were done on my own and not assigned for credit. During or after a course, I try to apply what I have learned to a new data set. Data science and statistics is a field where you never stop learning. When coding in R, I am a big proponent of tidy data and tidyverse packages in general and base my workflow around them.</p>
+<h2 id="more-information-about-tidyverse-and-tidymodels">More Information About Tidyverse and Tidymodels</h2>
+<p>The <a href="https://www.tidyverse.org">tidyverse</a> and <a href="https://www.tidymodels.org">tidymodels</a> are big milestones in the R community for data manipulation, machine learning, and an overall workflow and ideology when programming in R. A big thanks to Hadley Wickham, Julia Silge, Max Kuhn, and all others that help the R community grow.</p>
 </div>
 <div class="col-sm-6">
 <p><a href = "https://crumplab.github.io"> <img src="images/8616612485282640742.png" /> </a> Data is not knowledge, knowledge is not wisdom…</p>
@@ -325,7 +337,7 @@ $(document).ready(function () {
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
