@@ -1,0 +1,223 @@
+---
+title: "Fish Weight Prediction"
+author: Ra'Shawn Howard
+output: html_document
+---
+
+# Data Description
+* Species (fct): The name of the fish species
+* Weight  (num): Weight of the fish (g)
+* Length1 (num): Vertical length (cm)
+* Length2 (num): Diagonal length (cm)
+* Length3 (num): Cross length (cm)
+* Height  (num): Height (cm)
+* Width   (num): Diagonal width (cm)
+
+I want to predict Weight of fish based on subset of predictors.
+
+# Libraries I Use
+```{r Load-Libraries,message=FALSE}
+library(tidyverse)
+library(tidymodels)
+```
+
+```{r global-options, include=FALSE}
+theme_set(theme_minimal()) # set theme for ggplots. I like using Minimal theme!
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+# Load Data
+```{r Load-Data}
+fish_data <- read_csv("/Users/rashawnhoward/Downloads/Fish.csv")
+fish_data %>% glimpse() 
+```
+
+There are 6 potential predictors one of which is a chr variable
+
+# Explore Data
+There are no missing values
+```{r Any-Missing-Data}
+fish_data %>% 
+  summarise_all(~sum(is.na(.)))
+```
+
+The distribution of weight is right skewed and seems to have a value of zero for one of the weights. We need to remove this value, and transform data before modeling. We can also see some bigger fish with weight pass 1000 grams. I wonder which fish these are? And whats the biggest fish on average?
+```{r Weight-Distribution}
+fish_data %>% 
+  ggplot(aes(Weight)) +
+  geom_histogram(fill ="black")
+
+fish_data %>% 
+  filter(Weight > 0) -> fish_data # Remove the zero weight value
+```
+\
+We can see the biggest fish in this dataset by weight is Pike followed by Perch. While the biggest fish on average is Pike followed by bream, whitefish, then perch... This dataset has mostly Perch, the least amount being whitefish. From the boxplots we can see Pike, Perch, and Whitefish vary a lot in weight, while Roach, Parkki, and smelt don't vary much in weight.
+```{r Species-Distribution}
+fish_data %>% 
+  group_by(Species) %>% 
+  filter(Weight > 1000) %>% 
+  ggplot(aes(Height,Weight,color=Species)) +
+  geom_point() +
+  ggtitle("Whats The Biggest Fish In our Dataset?")
+
+fish_data %>% 
+  group_by(Species) %>% 
+  summarise(Avg = mean(Weight)) %>% 
+  mutate(order = fct_reorder(Species,Avg)) %>% 
+  ggplot(aes(order,Avg)) +
+  geom_bar(stat="identity",fill="blue") +
+  coord_flip() +
+  ggtitle("Whats The Biggest Fish on Average?") +
+  ylab("Expected Weight") +
+  xlab("") 
+
+fish_data %>% 
+  count(Species) %>% 
+  mutate(order = fct_reorder(Species,n)) %>% 
+  ggplot(aes(order,n))+
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  ggtitle("Count of Species") +
+  xlab("")
+
+fish_data %>% 
+  mutate(order = fct_reorder(Species,Weight)) %>% 
+  ggplot(aes(order,Weight)) +
+  geom_boxplot() +
+  coord_flip() +
+  xlab("") +
+  ggtitle("Variation of Species Weight")
+
+fish_data %>% 
+  ggplot(aes(Weight,fill=Species)) +
+  geom_dotplot(alpha=0.5) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  facet_wrap(~Species) +
+  ggtitle("Species by Weight")
+```
+\
+Their appears to be an exponential relationship between Weight and numeric predictors. As the predictors increase in value, weight increases exponentially. We Will have to transform data before modeling, to get a linear relationship or use a nonlinear model, such as natural splines.
+
+```{r Numeric-Predictor-Distribution,fig.height=8,fig.width=8}
+fig1 <- fish_data %>% 
+  ggplot(aes(Height,Weight)) +
+  geom_point()
+
+fig2 <- fish_data %>% 
+  ggplot(aes(Length1,Weight)) +
+  geom_point()
+
+fig3 <- fish_data %>% 
+  ggplot(aes(Length2,Weight)) +
+  geom_point()
+
+fig4 <- fish_data %>% 
+  ggplot(aes(Length3,Weight)) +
+  geom_point() 
+
+fig5 <- fish_data %>% 
+  ggplot(aes(Width,Weight)) +
+  geom_point()
+
+ggpubr::ggarrange(fig1,fig2,fig3,fig4,fig5,
+                  labels = c("Weight Vs Height",
+                             "Weight Vs Length1",
+                             "Weight Vs Length2",
+                             "Weight Vs Length3",
+                             "Weight Vs Width"))
+```
+\
+Their is a lot of correlation between the predictor variables. We will need to remove variables to avoid multicollinearity problems.
+```{r Correlation-predictors}
+fish_data %>% 
+  select(-Weight,-Species) %>% 
+  GGally::ggpairs(progress = F)
+```
+
+# Split Data
+```{r Split-Data}
+set.seed(123) # for reproducibility
+split <- fish_data %>% initial_split(prop = .8) # 80/20 split of data 80% training, 20% testing
+train <- training(split)
+test <- testing(split)
+```
+
+# Recipe
+Here I create a design matrix, taking the log of numeric variables and creating dummy variables for the string variable.
+```{r Recipes-DesignMatrix}
+# Create Design matrix
+rec <- recipe(Weight~.,data=training(split)) %>% 
+  step_log(all_outcomes(),all_predictors(),-all_nominal()) %>% 
+  step_dummy(Species) %>% 
+  prep()
+rec
+```
+
+# Fit Linear Regression Model
+Here I fit the model Weight~Height+Species, since all predictors are heavily correlated, I excluded them except for height. NOTE: I could do stepAIC or some other selection method to see which predictor would be best in the model.
+```{r Fit-Model}
+lm_mod <- linear_reg() %>% 
+  set_engine("lm") %>% 
+  fit(Weight~.-Length1-Length2-Width-Length3,data=juice(rec))
+lm_mod
+```
+
+# Check Model Assumptions
+cooks distance show 3 potential outliers and normality issues at tails of qq plot. We have enough data to where the CLT could be used.
+```{r Check-Assumption}
+plot(lm_mod$fit,1:2)
+plot(lm_mod$fit,4)
+
+#ACF test
+lm_mod$fit$residuals %>% acf()
+```
+\
+looks like removing row 76 and row 117 helped with the normality issue.
+```{r}
+juice(rec) %>% 
+  select(-Length1,-Length2,-Width,-Length3) -> rm_outlier_data
+
+rm_outlier_data <- rm_outlier_data[-c(76,117),]
+
+lm_mod2 <- linear_reg() %>% 
+  set_engine("lm") %>% 
+  fit(Weight~.,data=rm_outlier_data)
+
+plot(lm_mod2$fit,1:2)
+plot(lm_mod2$fit,4)
+
+lm_mod2$fit$residuals %>% acf()
+
+```
+
+# Performance on Test Data
+We get an MAE of 0.1193985 on the test data. 
+```{r Test-Data-Performance}
+test <- bake(rec,new_data = test)
+
+preds <- predict(lm_mod2,new_data = test) %>% 
+  bind_cols(test)
+
+min(preds$.pred);max(preds$.pred)
+preds %>% 
+  mae(truth=Weight,estimate=.pred)
+```
+After back-transforming data we get an MAE of 35.25854. This is now in the original units of our data and we can say, that on average, the forecast's distance from the true value is 35.25854 (e.g true value is 200 and forecast is 164.74146 or true value is 200 and forecast is 235.25854). 
+```{r MAE-Origininal}
+preds %>% 
+  select(.pred,Weight) %>% 
+  mutate(.pred = exp(.pred),
+         Weight = exp(Weight)) %>% 
+  mae(truth=Weight,estimate=.pred)
+```
+We can see this visually with a lineplot
+```{r Graph-Preds}
+preds %>% 
+  select(.pred,Weight,Height) %>%
+  ggplot(aes(Height,Weight,colour="Actual")) +
+  geom_line() +
+  geom_line((aes(Height,.pred,colour="Prediction"))) +
+  scale_colour_manual(" ",breaks = c("Actual","Prediction"),
+                      values=c("blue","red")) +
+  ggtitle("Predictions vs Actual")
+```

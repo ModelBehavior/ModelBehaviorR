@@ -6,4 +6,6 @@ navbar:
       href: index.html
     - text: "PredSales"
       href: PredSales.html
+    - text: "Fish Analysis"
+      href: Fish-Analysis.html
 output_dir: "docs"

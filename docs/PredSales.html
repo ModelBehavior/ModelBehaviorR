@@ -288,6 +288,9 @@ $(document).ready(function () {
 <li>
   <a href="PredSales.html">PredSales</a>
 </li>
+<li>
+  <a href="Fish-Analysis.html">Fish Analysis</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         
@@ -308,19 +311,16 @@ $(document).ready(function () {
 
 <div id="libraries-i-use" class="section level1">
 <h1>Libraries I Use</h1>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.3.3          ✓ purrr   0.3.4     
-## ✓ tibble  3.0.4          ✓ dplyr   1.0.2.9000
-## ✓ tidyr   1.1.2          ✓ stringr 1.4.0     
-## ✓ readr   1.4.0          ✓ forcats 0.5.0</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>library(forecast)</code></pre>
+<pre class="r"><code>library(tidyverse)
+library(forecast)</code></pre>
 <pre><code>## Registered S3 method overwritten by &#39;quantmod&#39;:
 ##   method            from
 ##   as.zoo.data.frame zoo</code></pre>
+<pre><code>## 
+## Attaching package: &#39;forecast&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:yardstick&#39;:
+## 
+##     accuracy</code></pre>
 <pre class="r"><code>library(feasts)</code></pre>
 <pre><code>## Loading required package: fabletools</code></pre>
 <pre><code>## 
@@ -328,6 +328,15 @@ $(document).ready(function () {
 <pre><code>## The following objects are masked from &#39;package:forecast&#39;:
 ## 
 ##     accuracy, forecast</code></pre>
+<pre><code>## The following object is masked from &#39;package:yardstick&#39;:
+## 
+##     accuracy</code></pre>
+<pre><code>## The following object is masked from &#39;package:parsnip&#39;:
+## 
+##     null_model</code></pre>
+<pre><code>## The following object is masked from &#39;package:infer&#39;:
+## 
+##     generate</code></pre>
 <pre class="r"><code>library(fable)
 library(tsibble)
 library(lubridate)</code></pre>
@@ -340,22 +349,6 @@ library(lubridate)</code></pre>
 ## 
 ##     date, intersect, setdiff, union</code></pre>
 <pre class="r"><code>library(tidymodels)</code></pre>
-<pre><code>## ── Attaching packages ────────────────────────────────────── tidymodels 0.1.2 ──</code></pre>
-<pre><code>## ✓ broom     0.7.3      ✓ recipes   0.1.15
-## ✓ dials     0.0.9      ✓ rsample   0.0.8 
-## ✓ infer     0.5.3      ✓ tune      0.1.2 
-## ✓ modeldata 0.1.0      ✓ workflows 0.2.1 
-## ✓ parsnip   0.1.4      ✓ yardstick 0.0.7</code></pre>
-<pre><code>## ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
-## x yardstick::accuracy() masks fabletools::accuracy(), forecast::accuracy()
-## x scales::discard()     masks purrr::discard()
-## x dplyr::filter()       masks stats::filter()
-## x recipes::fixed()      masks stringr::fixed()
-## x infer::generate()     masks fabletools::generate()
-## x dplyr::lag()          masks stats::lag()
-## x parsnip::null_model() masks fabletools::null_model()
-## x yardstick::spec()     masks readr::spec()
-## x recipes::step()       masks stats::step()</code></pre>
 </div>
 <div id="load-data" class="section level1">
 <h1>Load Data</h1>
@@ -399,13 +392,13 @@ library(lubridate)</code></pre>
   xlab(&quot;Days&quot;) +
   ylab(&quot;Number of Products Sold&quot;) +
   ggtitle(&quot;Doesn&#39;t look Stationary&quot;)</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-5-1.png" width="672" /><br />
+<p><img src="PredSales_files/figure-html/vis1-1.png" width="672" /><br />
 Looking at the ACF plot below we can see that the data has high peeks at 7, 14, 21, and 28. Suggesting that the data is weekly seasonal.</p>
 <pre class="r"><code>sales_data %&gt;% 
   ACF() %&gt;% 
   autoplot()</code></pre>
 <pre><code>## Response variable not specified, automatically selected `var = item_cnt_day`</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-6-1.png" width="672" /><br />
+<p><img src="PredSales_files/figure-html/vis2-1.png" width="672" /><br />
 We can see the <a href="%22https://feasts.tidyverts.org/reference/guerrero.html%22">BoxCox</a> fixed the Variance issue from the first plot, and we can see stationarity from second plot. We can also add another difference on to this, looking at the nsdiff and ndiff function we see that the data needs a seasonal difference and a regular difference.</p>
 <pre class="r"><code>lambda &lt;- sales_data %&gt;% # Find Best Lambda Value
   features(item_cnt_day,features = guerrero) %&gt;% 
@@ -420,7 +413,7 @@ sales_data %&gt;% # Plot what data looks like now
   ylab(&quot;BoxCox Number of Products Sold&quot;) +
   ggtitle(&quot;The Variance Issue Is Gone&quot;) # still see trend, need to diffference data</code></pre>
 <pre><code>## Plot variable not specified, automatically selected `.vars = item_cnt_day`</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="PredSales_files/figure-html/vis3-1.png" width="672" /></p>
 <pre class="r"><code># What kind of differences do we need?
 sales_data %&gt;% 
   features(item_cnt_day,unitroot_ndiffs) # We have a trend component</code></pre>
@@ -442,7 +435,7 @@ sales_data %&gt;%
   ylab(&quot;Differenced(7) BoxCox Number of Products Sold&quot;) +
   ggtitle(&quot;Looks Stationary Now&quot;)</code></pre>
 <pre><code>## Plot variable not specified, automatically selected `.vars = item_cnt_day`</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
+<p><img src="PredSales_files/figure-html/vis3-2.png" width="672" /></p>
 <pre class="r"><code>sales_data %&gt;% # Plot to see if data is stationary (extra difference plot)
   mutate(item_cnt_day = difference(item_cnt_day,7) %&gt;% difference()) %&gt;% 
   autoplot() + 
@@ -451,7 +444,7 @@ sales_data %&gt;%
   ylab(&quot;Differenced(7) BoxCox Number of Products Sold&quot;) +
   ggtitle(&quot;Looks Stationary Now&quot;)</code></pre>
 <pre><code>## Plot variable not specified, automatically selected `.vars = item_cnt_day`</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-7-3.png" width="672" /></p>
+<p><img src="PredSales_files/figure-html/vis3-3.png" width="672" /></p>
 </div>
 </div>
 <div id="split-data" class="section level1">
@@ -471,14 +464,14 @@ train &lt;- training(split)</code></pre>
   ACF() %&gt;% 
   autoplot()</code></pre>
 <pre><code>## Response variable not specified, automatically selected `var = item_cnt_day`</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-9-1.png" width="672" /><br />
+<p><img src="PredSales_files/figure-html/vis4-1.png" width="672" /><br />
 Looking at the PACF plot below, we can see big lags at 7, 14, 21, and 28 which could suggest 4 seasonal AR componets. Its hard to tell how many regular components could be 2 or more.</p>
 <pre class="r"><code>train %&gt;% 
   mutate(item_cnt_day = difference(item_cnt_day,7) %&gt;% difference()) %&gt;% 
   PACF() %&gt;% 
   autoplot()</code></pre>
 <pre><code>## Response variable not specified, automatically selected `var = item_cnt_day`</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-10-1.png" width="672" /><br />
+<p><img src="PredSales_files/figure-html/vis6-1.png" width="672" /><br />
 The EACF plot suggest an MA(2) ARMA(2,2) ARMA(3,1)</p>
 <pre class="r"><code>TSA::eacf(train$item_cnt_day)</code></pre>
 <pre><code>## Registered S3 methods overwritten by &#39;TSA&#39;:
@@ -540,7 +533,7 @@ The EACF plot suggest an MA(2) ARMA(2,2) ARMA(3,1)</p>
   xlab(&quot;Day&quot;) +
   ylab(&quot;Number of Products Sold&quot;) +
   ggtitle(&quot;Model Fits on New Data&quot;)</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="PredSales_files/figure-html/forecast-mods-1.png" width="672" /></p>
 <p>Looks like the arima_111_111 model did the best on the test set with RMSE = 0.008234140</p>
 <pre class="r"><code>fit %&gt;% 
   forecast(test) %&gt;% 
@@ -561,11 +554,11 @@ The EACF plot suggest an MA(2) ARMA(2,2) ARMA(3,1)</p>
   xlab(&quot;day&quot;) +
   ylab(&quot;Number of Products Sold&quot;) +
   ggtitle(&quot;Closer Look at ARIMA_111_111 Model&quot;)</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p><img src="PredSales_files/figure-html/closer-look-1.png" width="672" /></p>
 <pre class="r"><code>train %&gt;% 
   model(ARIMA(item_cnt_day~pdq(1,1,1)+PDQ(1,1,1))) %&gt;% 
   gg_tsresiduals()</code></pre>
-<p><img src="PredSales_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p><img src="PredSales_files/figure-html/residuals-of-mod-1.png" width="672" /></p>
 </div>
 </div>
 

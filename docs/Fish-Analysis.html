@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ra’Shawn Howard" />
+
+
+<title>Fish Weight Prediction</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">ModelBehavior</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="PredSales.html">PredSales</a>
+</li>
+<li>
+  <a href="Fish-Analysis.html">Fish Analysis</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Fish Weight Prediction</h1>
+<h4 class="author">Ra’Shawn Howard</h4>
+
+</div>
+
+
+<div id="data-description" class="section level1">
+<h1>Data Description</h1>
+<ul>
+<li>Species (fct): The name of the fish species</li>
+<li>Weight (num): Weight of the fish (g)</li>
+<li>Length1 (num): Vertical length (cm)</li>
+<li>Length2 (num): Diagonal length (cm)</li>
+<li>Length3 (num): Cross length (cm)</li>
+<li>Height (num): Height (cm)</li>
+<li>Width (num): Diagonal width (cm)</li>
+</ul>
+<p>I want to predict Weight of fish based on subset of predictors.</p>
+</div>
+<div id="libraries-i-use" class="section level1">
+<h1>Libraries I Use</h1>
+<pre class="r"><code>library(tidyverse)
+library(tidymodels)</code></pre>
+</div>
+<div id="load-data" class="section level1">
+<h1>Load Data</h1>
+<pre class="r"><code>fish_data &lt;- read_csv(&quot;/Users/rashawnhoward/Downloads/Fish.csv&quot;)
+fish_data %&gt;% glimpse() </code></pre>
+<pre><code>## Rows: 159
+## Columns: 7
+## $ Species &lt;chr&gt; &quot;Bream&quot;, &quot;Bream&quot;, &quot;Bream&quot;, &quot;Bream&quot;, &quot;Bream&quot;, &quot;Bream&quot;, &quot;Bream&quot;…
+## $ Weight  &lt;dbl&gt; 242, 290, 340, 363, 430, 450, 500, 390, 450, 500, 475, 500, 5…
+## $ Length1 &lt;dbl&gt; 23.2, 24.0, 23.9, 26.3, 26.5, 26.8, 26.8, 27.6, 27.6, 28.5, 2…
+## $ Length2 &lt;dbl&gt; 25.4, 26.3, 26.5, 29.0, 29.0, 29.7, 29.7, 30.0, 30.0, 30.7, 3…
+## $ Length3 &lt;dbl&gt; 30.0, 31.2, 31.1, 33.5, 34.0, 34.7, 34.5, 35.0, 35.1, 36.2, 3…
+## $ Height  &lt;dbl&gt; 11.5200, 12.4800, 12.3778, 12.7300, 12.4440, 13.6024, 14.1795…
+## $ Width   &lt;dbl&gt; 4.0200, 4.3056, 4.6961, 4.4555, 5.1340, 4.9274, 5.2785, 4.690…</code></pre>
+<p>There are 6 potential predictors one of which is a chr variable</p>
+</div>
+<div id="explore-data" class="section level1">
+<h1>Explore Data</h1>
+<p>There are no missing values</p>
+<pre class="r"><code>fish_data %&gt;% 
+  summarise_all(~sum(is.na(.)))</code></pre>
+<pre><code>## # A tibble: 1 x 7
+##   Species Weight Length1 Length2 Length3 Height Width
+##     &lt;int&gt;  &lt;int&gt;   &lt;int&gt;   &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;int&gt;
+## 1       0      0       0       0       0      0     0</code></pre>
+<p>The distribution of weight is right skewed and seems to have a value of zero for one of the weights. We need to remove this value, and transform data before modeling. We can also see some bigger fish with weight pass 1000 grams. I wonder which fish these are? And whats the biggest fish on average?</p>
+<pre class="r"><code>fish_data %&gt;% 
+  ggplot(aes(Weight)) +
+  geom_histogram(fill =&quot;black&quot;)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Weight-Distribution-1.png" width="672" /></p>
+<pre class="r"><code>fish_data %&gt;% 
+  filter(Weight &gt; 0) -&gt; fish_data # Remove the zero weight value</code></pre>
+<p><br />
+We can see the biggest fish in this dataset by weight is Pike followed by Perch. While the biggest fish on average is Pike followed by bream, whitefish, then perch… This dataset has mostly Perch, the least amount being whitefish. From the boxplots we can see Pike, Perch, and Whitefish vary a lot in weight, while Roach, Parkki, and smelt don’t vary much in weight.</p>
+<pre class="r"><code>fish_data %&gt;% 
+  group_by(Species) %&gt;% 
+  filter(Weight &gt; 1000) %&gt;% 
+  ggplot(aes(Height,Weight,color=Species)) +
+  geom_point() +
+  ggtitle(&quot;Whats The Biggest Fish In our Dataset?&quot;)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Species-Distribution-1.png" width="672" /></p>
+<pre class="r"><code>fish_data %&gt;% 
+  group_by(Species) %&gt;% 
+  summarise(Avg = mean(Weight)) %&gt;% 
+  mutate(order = fct_reorder(Species,Avg)) %&gt;% 
+  ggplot(aes(order,Avg)) +
+  geom_bar(stat=&quot;identity&quot;,fill=&quot;blue&quot;) +
+  coord_flip() +
+  ggtitle(&quot;Whats The Biggest Fish on Average?&quot;) +
+  ylab(&quot;Expected Weight&quot;) +
+  xlab(&quot;&quot;) </code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Species-Distribution-2.png" width="672" /></p>
+<pre class="r"><code>fish_data %&gt;% 
+  count(Species) %&gt;% 
+  mutate(order = fct_reorder(Species,n)) %&gt;% 
+  ggplot(aes(order,n))+
+  geom_bar(stat = &quot;identity&quot;) +
+  coord_flip() +
+  ggtitle(&quot;Count of Species&quot;) +
+  xlab(&quot;&quot;)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Species-Distribution-3.png" width="672" /></p>
+<pre class="r"><code>fish_data %&gt;% 
+  mutate(order = fct_reorder(Species,Weight)) %&gt;% 
+  ggplot(aes(order,Weight)) +
+  geom_boxplot() +
+  coord_flip() +
+  xlab(&quot;&quot;) +
+  ggtitle(&quot;Variation of Species Weight&quot;)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Species-Distribution-4.png" width="672" /></p>
+<pre class="r"><code>fish_data %&gt;% 
+  ggplot(aes(Weight,fill=Species)) +
+  geom_dotplot(alpha=0.5) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  facet_wrap(~Species) +
+  ggtitle(&quot;Species by Weight&quot;)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Species-Distribution-5.png" width="672" /><br />
+Their appears to be an exponential relationship between Weight and numeric predictors. As the predictors increase in value, weight increases exponentially. We Will have to transform data before modeling, to get a linear relationship or use a nonlinear model, such as natural splines.</p>
+<pre class="r"><code>fig1 &lt;- fish_data %&gt;% 
+  ggplot(aes(Height,Weight)) +
+  geom_point()
+
+fig2 &lt;- fish_data %&gt;% 
+  ggplot(aes(Length1,Weight)) +
+  geom_point()
+
+fig3 &lt;- fish_data %&gt;% 
+  ggplot(aes(Length2,Weight)) +
+  geom_point()
+
+fig4 &lt;- fish_data %&gt;% 
+  ggplot(aes(Length3,Weight)) +
+  geom_point() 
+
+fig5 &lt;- fish_data %&gt;% 
+  ggplot(aes(Width,Weight)) +
+  geom_point()
+
+ggpubr::ggarrange(fig1,fig2,fig3,fig4,fig5,
+                  labels = c(&quot;Weight Vs Height&quot;,
+                             &quot;Weight Vs Length1&quot;,
+                             &quot;Weight Vs Length2&quot;,
+                             &quot;Weight Vs Length3&quot;,
+                             &quot;Weight Vs Width&quot;))</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Numeric-Predictor-Distribution-1.png" width="768" /><br />
+Their is a lot of correlation between the predictor variables. We will need to remove variables to avoid multicollinearity problems.</p>
+<pre class="r"><code>fish_data %&gt;% 
+  select(-Weight,-Species) %&gt;% 
+  GGally::ggpairs(progress = F)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Correlation-predictors-1.png" width="672" /></p>
+</div>
+<div id="split-data" class="section level1">
+<h1>Split Data</h1>
+<pre class="r"><code>set.seed(123) # for reproducibility
+split &lt;- fish_data %&gt;% initial_split(prop = .8) # 80/20 split of data 80% training, 20% testing
+train &lt;- training(split)
+test &lt;- testing(split)</code></pre>
+</div>
+<div id="recipe" class="section level1">
+<h1>Recipe</h1>
+<p>Here I create a design matrix, taking the log of numeric variables and creating dummy variables for the string variable.</p>
+<pre class="r"><code># Create Design matrix
+rec &lt;- recipe(Weight~.,data=training(split)) %&gt;% 
+  step_log(all_outcomes(),all_predictors(),-all_nominal()) %&gt;% 
+  step_dummy(Species) %&gt;% 
+  prep()
+rec</code></pre>
+<pre><code>## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          6
+## 
+## Training data contained 127 data points and no missing data.
+## 
+## Operations:
+## 
+## Log transformation on Weight, Length1, Length2, Length3, ... [trained]
+## Dummy variables from Species [trained]</code></pre>
+</div>
+<div id="fit-linear-regression-model" class="section level1">
+<h1>Fit Linear Regression Model</h1>
+<p>Here I fit the model Weight~Height+Species, since all predictors are heavily correlated, I excluded them except for height. NOTE: I could do stepAIC or some other selection method to see which predictor would be best in the model.</p>
+<pre class="r"><code>lm_mod &lt;- linear_reg() %&gt;% 
+  set_engine(&quot;lm&quot;) %&gt;% 
+  fit(Weight~.-Length1-Length2-Width-Length3,data=juice(rec))
+lm_mod</code></pre>
+<pre><code>## parsnip model object
+## 
+## Fit time:  4ms 
+## 
+## Call:
+## stats::lm(formula = Weight ~ . - Length1 - Length2 - Width - 
+##     Length3, data = data)
+## 
+## Coefficients:
+##       (Intercept)             Height     Species_Parkki      Species_Perch  
+##          -1.21044            2.79888            0.02999            1.10476  
+##      Species_Pike      Species_Roach      Species_Smelt  Species_Whitefish  
+##           1.92427            0.86067            1.42905            0.93099</code></pre>
+</div>
+<div id="check-model-assumptions" class="section level1">
+<h1>Check Model Assumptions</h1>
+<p>cooks distance show 3 potential outliers and normality issues at tails of qq plot. We have enough data to where the CLT could be used.</p>
+<pre class="r"><code>plot(lm_mod$fit,1:2)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Check-Assumption-1.png" width="672" /><img src="Fish-Analysis_files/figure-html/Check-Assumption-2.png" width="672" /></p>
+<pre class="r"><code>plot(lm_mod$fit,4)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Check-Assumption-3.png" width="672" /></p>
+<pre class="r"><code>#ACF test
+lm_mod$fit$residuals %&gt;% acf()</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Check-Assumption-4.png" width="672" /><br />
+looks like removing row 76 and row 117 helped with the normality issue.</p>
+<pre class="r"><code>juice(rec) %&gt;% 
+  select(-Length1,-Length2,-Width,-Length3) -&gt; rm_outlier_data
+
+rm_outlier_data &lt;- rm_outlier_data[-c(76,117),]
+
+lm_mod2 &lt;- linear_reg() %&gt;% 
+  set_engine(&quot;lm&quot;) %&gt;% 
+  fit(Weight~.,data=rm_outlier_data)
+
+plot(lm_mod2$fit,1:2)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/unnamed-chunk-1-1.png" width="672" /><img src="Fish-Analysis_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<pre class="r"><code>plot(lm_mod2$fit,4)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/unnamed-chunk-1-3.png" width="672" /></p>
+<pre class="r"><code>lm_mod2$fit$residuals %&gt;% acf()</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/unnamed-chunk-1-4.png" width="672" /></p>
+</div>
+<div id="performance-on-test-data" class="section level1">
+<h1>Performance on Test Data</h1>
+<p>We get an MAE of 0.1193985 on the test data.</p>
+<pre class="r"><code>test &lt;- bake(rec,new_data = test)
+
+preds &lt;- predict(lm_mod2,new_data = test) %&gt;% 
+  bind_cols(test)
+
+min(preds$.pred);max(preds$.pred)</code></pre>
+<pre><code>## [1] 1.952602</code></pre>
+<pre><code>## [1] 7.357828</code></pre>
+<pre class="r"><code>preds %&gt;% 
+  mae(truth=Weight,estimate=.pred)</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   .metric .estimator .estimate
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+## 1 mae     standard       0.119</code></pre>
+<p>After back-transforming data we get an MAE of 35.25854. This is now in the original units of our data and we can say, that on average, the forecast’s distance from the true value is 35.25854 (e.g true value is 200 and forecast is 164.74146 or true value is 200 and forecast is 235.25854).</p>
+<pre class="r"><code>preds %&gt;% 
+  select(.pred,Weight) %&gt;% 
+  mutate(.pred = exp(.pred),
+         Weight = exp(Weight)) %&gt;% 
+  mae(truth=Weight,estimate=.pred)</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   .metric .estimator .estimate
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+## 1 mae     standard        35.3</code></pre>
+<p>We can see this visually with a lineplot</p>
+<pre class="r"><code>preds %&gt;% 
+  select(.pred,Weight,Height) %&gt;%
+  ggplot(aes(Height,Weight,colour=&quot;Actual&quot;)) +
+  geom_line() +
+  geom_line((aes(Height,.pred,colour=&quot;Prediction&quot;))) +
+  scale_colour_manual(&quot; &quot;,breaks = c(&quot;Actual&quot;,&quot;Prediction&quot;),
+                      values=c(&quot;blue&quot;,&quot;red&quot;)) +
+  ggtitle(&quot;Predictions vs Actual&quot;)</code></pre>
+<p><img src="Fish-Analysis_files/figure-html/Graph-Preds-1.png" width="672" /></p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
